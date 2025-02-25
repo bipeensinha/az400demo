@@ -2,7 +2,7 @@ trigger:
 - master  # Triggers on pushes to the master branch
 
 pool:
-  vmImage: 'windows-latest'  # Uses Microsoft-hosted agent (or switch to self-hosted if needed)
+  name: 'mypool'  # Uses Microsoft-hosted agent (or switch to self-hosted if needed)
 
 stages:
 # 🚀 BUILD STAGE
