@@ -1,0 +1,24 @@
+trigger:
+- master  # Triggers on pushes to master
+
+pool:
+  name: 'mypool'  # Your self-hosted agent pool
+
+stages:
+# 🚀 BUILD STAGE
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - script: echo "🚀 Build Stage Started"
+    - script: echo "Hello from Build Stage! ✅"
+    - script: echo "Build Completed Successfully"
+    
+    # 📁 Publish Artifact for Release Pipeline
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)'  # Change path if needed
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
