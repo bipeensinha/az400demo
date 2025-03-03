@@ -1,0 +1,47 @@
+trigger:
+- master  # Triggers on pushes to the master branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Uses Microsoft-hosted agent (or switch to self-hosted if needed)
+
+stages:
+# 🚀 BUILD STAGE
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - script: echo "Hello from Build Stage! ✅"
+    - script: echo "Hello from Build Stage! ✅"
+    - script: echo "Build Completed Successfully"
+
+# 🧪 TEST STAGE
+- stage: Test
+  displayName: 'Test Stage'
+  dependsOn: Build
+  jobs:
+  - job: RunTests
+    displayName: 'Run Basic Tests'
+    steps:
+    - script: |
+        echo "Running Unit Tests..."
+        bash tests/unit_test.sh
+      displayName: "Run Unit Tests"
+
+    - script: |
+        echo "Running Functional Tests..."
+        bash tests/functional_test.sh
+      displayName: "Run Functional Tests"
+
+# 📦 RELEASE STAGE
+- stage: Release
+  displayName: 'Release Stage'
+  dependsOn: Test
+  jobs:
+  - job: ReleaseJob
+    displayName: 'Release Job'
+    steps:
+    - script: echo "Hello from Release Stage! 🎉"
+    - script: echo "Hello from Release Stage! 🎉"
+    - script: echo "Release Completed Successfully"
