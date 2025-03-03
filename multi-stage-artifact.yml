@@ -29,7 +29,7 @@ stages:
       inputs:
         command: 'publish'
         publishDirectory: '$(Build.ArtifactStagingDirectory)/app'
-        vstsFeedPublish: 'myfeed'   # Your Azure DevOps Artifacts feed name
+        vstsFeedPublish: 'eShopOnWeb-48950951/myfeed'   # Your Azure DevOps Artifacts feed name
         packageName: 'MyAppBuild'
         packageVersion: '1.0.0'
       displayName: "Publish to Azure Artifacts Feed (myfeed)"
