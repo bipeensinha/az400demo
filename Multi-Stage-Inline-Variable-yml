@@ -1,0 +1,62 @@
+variables:
+  buildMessage: "🚀 Build Stage Started"
+  releaseMessage: "📦 Release Stage Started"
+  monitorMessage: "📦 Monitor Stage Started"
+  deploymentMessage: "📦 Deployment Stage Started"
+
+trigger:
+- master  # Triggers on pushes to the master branch
+
+pool:
+  name: 'eShopOnWebSelfPool48937358'  # Uses Microsoft-hosted agent (or switch to self-hosted if needed)
+
+stages:
+# 🚀 BUILD STAGE
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - script: echo echo $(buildMessage)
+    - script: echo "Hello from Build Stage! ✅"
+    - script: echo "Build Completed Successfully"
+
+# 📦 RELEASE STAGE
+- stage: Release
+  displayName: 'Release Stage'
+  dependsOn: Build  # Runs after Build stage
+  jobs:
+  - job: ReleaseJob
+    displayName: 'Release Job'
+    steps:
+    - script: echo  $(releaseMessage)
+    - script: echo "Hello from Release Stage! 🎉"
+    - script: echo "Release Completed Successfully"
+
+# 📦 Monitor STAGE
+- stage: monitor
+  displayName: 'monitor Stage'
+  dependsOn: Release  # Runs after Build stage
+  jobs:
+  - job: monitorJob
+    displayName: 'monitor Job'
+    steps:
+    - script: echo $(monitorMessage)
+    - script: echo "Hello from Release Stage! 🎉"
+    - script: echo "Release Completed Successfully"
+
+
+# 📦 Deployment STAGE
+- stage: deployment
+  displayName: 'deployment Stage'
+  dependsOn: Release  # Runs after Build stage
+  jobs:
+  - job: deploymentJob
+    displayName: 'deployment Job'
+    steps:
+    - script: echo "📦 monitor Stage Started"
+    - script: echo "Hello from Release Stage! 🎉"
+    - script: echo "Release Completed Successfully"
+
+
