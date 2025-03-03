@@ -1,0 +1,82 @@
+trigger:
+- master  # Triggers on pushes to the master branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Uses Microsoft-hosted agent (or switch to self-hosted if needed)
+
+
+stages:
+# 🚀 BUILD STAGE (Creates & Publishes Artifact)
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - script: echo "🚀 Build Stage Started"
+    - script: mkdir -p $(Build.ArtifactStagingDirectory)/app
+    - script: echo "Sample Build File" > $(Build.ArtifactStagingDirectory)/app/build_output.txt
+
+    # ✅ Publish Artifact to Pipeline Artifacts (for use within the pipeline)
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)/app'
+        artifactName: 'drop'
+      displayName: "Publish Pipeline Artifact"
+
+    # ✅ Publish to Azure Artifacts (Universal Package) - "myfeed"
+    - task: UniversalPackages@0
+      inputs:
+        command: 'publish'
+        publishDirectory: '$(Build.ArtifactStagingDirectory)/app'
+        vstsFeedPublish: 'myfeed'   # Your Azure DevOps Artifacts feed name
+        packageName: 'MyAppBuild'
+        packageVersion: '1.0.0'
+      displayName: "Publish to Azure Artifacts Feed (myfeed)"
+
+# 🧪 TEST STAGE
+- stage: Test
+  displayName: 'Test Stage'
+  dependsOn: Build
+  jobs:
+  - job: RunTests
+    displayName: 'Run Tests'
+    steps:
+    - script: echo "Running Tests..."
+    - script: bash tests/unit_test.sh
+      displayName: "Run Unit Tests"
+    - script: bash tests/functional_test.sh
+      displayName: "Run Functional Tests"
+
+# 📦 RELEASE STAGE (Downloads Artifact & Uses It)
+- stage: Release
+  displayName: 'Release Stage'
+  dependsOn: Test
+  jobs:
+  - job: ReleaseJob
+    displayName: 'Release Job'
+    steps:
+    # ✅ Download Artifact from Pipeline Artifacts
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        artifactName: 'drop'
+        downloadPath: '$(Build.ArtifactStagingDirectory)'
+
+    # ✅ Use the Downloaded Artifact
+    - script: cat $(Build.ArtifactStagingDirectory)/drop/build_output.txt
+      displayName: "Read Artifact File"
+
+    # ✅ Download from Azure Artifacts Feed (myfeed)
+    - task: UniversalPackages@0
+      inputs:
+        command: 'download'
+        vstsFeed: 'myfeed'
+        packageName: 'MyAppBuild'
+        packageVersion: '1.0.0'
+        downloadDirectory: '$(Build.ArtifactStagingDirectory)/MyApp'
+      displayName: "Download from Azure Artifacts Feed (myfeed)"
+
+    # ✅ Verify the Downloaded Artifact
+    - script: cat $(Build.ArtifactStagingDirectory)/MyApp/build_output.txt
+      displayName: "Verify Downloaded Artifact from myfeed"
