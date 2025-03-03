@@ -1,3 +1,6 @@
+
+<img width="752" alt="image" src="https://github.com/user-attachments/assets/4c9dd625-1f3b-42df-b8f4-06c84eea3950" />
+
 STEP 1: Build Pipeline — Publish Artifacts
 ✅ YAML for Build Pipeline (azure-pipelines.yml):
 yaml
