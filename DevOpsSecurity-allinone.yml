@@ -1,0 +1,68 @@
+
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - script: echo "🚀 Build Stage Started"
+
+    # 🔍 Inject a fake security issue (secrets)
+    - script: |
+        echo "AWS_SECRET_ACCESS_KEY=FAKEKEY1234567890" > fake_secret.txt  # Hardcoded secret
+        echo "DB_PASSWORD=SuperSecret123!" >> password.txt  # Database password
+        echo "SSH_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----FAKEKEYDATA" >> ssh_key.txt  # SSH Key
+      displayName: 'Inject Fake Security Issue'
+
+
+
+
+    # 🔍 Security Scan Task - Fail on any high-severity issue
+    - task: MicrosoftSecurityDevOps@1
+      displayName: 'Run Microsoft Security DevOps'
+      inputs:
+        categories: 'Secrets'
+
+      continueOnError: false  # 🔴 Fail build if security issues are found
+
+    # 📤 Publish Security Scan Report
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Security Scan Report'
+      inputs:
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: SecurityScanReport
+        publishLocation: Container
+
+    # 🔍 Run Checkov Security Scan and Fail on Any Issue
+    - script: |
+        pip install checkov
+        checkov --directory . \
+                --hard-fail-on LOW,MEDIUM,HIGH,CRITICAL \
+                --enable-secret-scan-all-files \
+                --secrets-scan-file-type ANY \
+                --deep-analysis
+      continueOnError: false  # 🚨 Fail the build if issues are found
+
+
+
+
+# 📦 RELEASE STAGE
+- stage: Release
+  displayName: 'Release Stage'
+  dependsOn: Build
+  condition: succeeded()  # Ensures Release only runs if Build was successful
+  jobs:
+  - deployment: SecureRelease
+    displayName: 'Secure Deployment'
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "🚀 Starting Secure Release"
+            displayName: 'Start Secure Release'
