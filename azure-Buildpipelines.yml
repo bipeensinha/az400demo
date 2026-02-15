@@ -2,7 +2,8 @@ trigger:
 - master  # Triggers on pushes to master
 
 pool:
-  name: 'mypool'  # Your self-hosted agent pool
+ # name: 'mypool'  # Your self-hosted agent pool
+  vmImage: 'ubuntu-latest'
 
 stages:
 # 🚀 BUILD STAGE
