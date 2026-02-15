@@ -2,7 +2,8 @@ trigger:
 - master  # Triggers on pushes to the master branch
 
 pool:
-  name: 'mypool'  # Uses Microsoft-hosted agent (or switch to self-hosted if needed)
+ # name: 'mypool'  # Uses Microsoft-hosted agent (or switch to self-hosted if needed)
+  vmImage: 'ubuntu-latest'
 
 stages:
 # 🚀 BUILD STAGE
